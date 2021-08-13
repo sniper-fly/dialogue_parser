@@ -1,5 +1,10 @@
 import re
 
+def print_data(data):
+    for row in data:
+        print(f'start: {row["start"]}, end: {row["end"]} content: {row["text"]["content"]}')
+
+
 def split_by_comma(line):
     block_count = 9
     formats = ["layer", "start", "end", "style", "name", "marginl", "marginr", "marginv", "effect", "text"]
@@ -73,14 +78,50 @@ file_name = "./2020_01_05_Sun_0900_0930_ch8_A_.ass"
 
 data = parse_data_from_file(file_name)
 
-idx = 0
-for row in data:
-    print(f'{row}')
-    
+joined_data = []
 
+# is_continuous = False #文が続いている（文末文字が登場していない）ことを表すフラグ
+# row_content = data[0]['text']['content']
+# elem_to_push = data[0]
+
+# if (not has_eos(row_content)):
+#     is_continuous = True
+#     actual_content = row_content
+# elif (has_eos(row_content)):
+#     is_continuous = False
+#     joined_data.append(elem_to_push)
+#     actual_content = ""
+
+# for row in data[1:]:
+#     row_content = row["text"]["content"]
+
+#     if (not is_continuous):
+#         elem_to_push = row
+#         actual_content += row_content
+
+#     if (not has_eos(row_content)):
+#         is_continuous = True
+#     elif (has_eos(row_content)):
+#         is_continuous = False
+#         elem_to_push["text"]["content"] = actual_content
+#         actual_content = ""
+#         joined_data.append(elem_to_push)
+
+data_len = len(data)
+idx = 0
+while (idx < data_len):
+    elem_to_push = data[idx]
+    appended_content = ""
+    while (True):
+        appended_content += data[idx]["text"]["content"]
+        if (has_eos(data[idx]["text"]["content"])):
+            break
+        idx += 1
+    elem_to_push["text"]["content"] = appended_content
+    joined_data.append(elem_to_push)
     idx += 1
 
-    #layer, start, end, textなど要素を分解して辞書にいれて返す
+
     #((label 1)) #textに文末文字が含まれているか判定する
         #文末文字がなければ
             #文末文字が出てくるまでtextを連結する(次の行を解析する)
@@ -89,3 +130,5 @@ for row in data:
         #文末文字が途中で見つかったら
             #最初の文末文字まで前の文に連結
             #前の文のtext以外のデータを複製し、(label1に戻って)文末文字以降の文字列を解析する
+
+print_data(joined_data)
