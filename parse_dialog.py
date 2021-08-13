@@ -1,25 +1,19 @@
 import re
 
-def replace_pos_comma_into_semi_colon(line):
-    count = 0
-    line_len = len(line)
-    for i in range(line_len):
-        if (line[i] == ','):
-            count += 1
-        if (count == 10):
-            str = list(line)
-            str[i] = ""
-            return ("".join(str))
-
-
 def split_by_comma(line):
     block_count = 9
+    formats = ["layer", "start", "end", "style", "name", "marginl", "marginr", "marginv", "effect", "text"]
 
     line = line.rstrip()
     line = line.replace('\\N', '')
     data = line.split(',', block_count)# 左端からblock_count回だけ分割する
+    data = dict(zip(formats, data))
+    data['text'] = data['text'].split('}')
+    pos = data['text'][0]
+    pos = pos.strip('{')
+    content = data['text'][1]
+    data['text'] = {"pos": pos, "content": content} #posとcontentを分離して辞書に保存
     return data
-
 
 file_name = "./2020_01_05_Sun_0900_0930_ch8_A_.ass"
 # file_name = "./result.txt"
@@ -43,4 +37,4 @@ with open(file_name,"r",encoding="utf-8_sig") as f:
                 #前の文のtext以外のデータを複製し、(label1に戻って)文末文字以降の文字列を解析する
 
 
-        print(f'{line}')
+        print(f'{data}')
