@@ -2,7 +2,7 @@ import re
 
 def print_data(data):
     for row in data:
-        print(f'start: {row["start"]}, end: {row["end"]} content: {row["text"]["content"]}')
+        print(f'start: {row["start"]}, end: {row["end"]} content: {row["text"]}')
 
 
 def split_by_comma(line):
@@ -19,18 +19,16 @@ def split_by_comma(line):
     data = dict(zip(formats, splitted_list))
 
     #textをposとcontentに分離し、辞書でまとめて保存
-    data['text'] = data['text'].split('}')
-    pos = data['text'][0]
-    pos = pos.strip('{')
-    content = data['text'][1]
-    data['text'] = {"pos": pos, "content": content}
-
+    pos_text = data['text'].split('}')
+    pos = pos_text[0].strip('{')
+    text = pos_text[1]
+    data['pos'] = pos
+    data['text'] = text
     return data
 
 
 def has_eos(txt0):
     txt = list(txt0)
-
     if "｡" in txt or "?" in txt or "!" in txt or "！" in txt or "？" in txt or "《" in txt or "》" in txt:
         return True 
     else:
@@ -52,10 +50,8 @@ def has_eos(txt0):
 #         'marginr': '0000',
 #         'marginv': '0000',
 #         'effect': '',
-#         'text': {
-#               'pos': '\\pos(500,1020)\\c&H00ffff&',
-#               'content': '見えない世界の扉が開く｡'
-#                       }
+#         'pos': '\\pos(500,1020)\\c&H00ffff&',
+#         'text': '見えない世界の扉が開く｡'
 #         },
 # ]
 def parse_data_from_file(file_name):
@@ -73,62 +69,35 @@ def parse_data_from_file(file_name):
     return data
 
 
+def join_continuous_sentence(data):
+    joined_data = []
+    data_len = len(data)
+    idx = 0
+    while (idx < data_len):
+        elem_to_push = data[idx]
+        appended_content = ""
+        while (True):
+            appended_content += data[idx]["text"]
+            if (has_eos(data[idx]["text"])):
+                break
+            idx += 1
+        elem_to_push["text"] = appended_content
+        joined_data.append(elem_to_push)
+        idx += 1
+    return joined_data
+
+
+#((label 1)) #textに文末文字が含まれているか判定する
+    #文末文字がなければ
+        #文末文字が出てくるまでtextを連結する(次の行を解析する)
+    #文末文字が末尾で見つかったら
+        #前の文にすべての文を連結して終了する
+    #文末文字が途中で見つかったら
+        #最初の文末文字まで前の文に連結
+        #前の文のtext以外のデータを複製し、(label1に戻って)文末文字以降の文字列を解析する
+
 file_name = "./2020_01_05_Sun_0900_0930_ch8_A_.ass"
 # file_name = "./result.txt"
-
 data = parse_data_from_file(file_name)
-
-joined_data = []
-
-# is_continuous = False #文が続いている（文末文字が登場していない）ことを表すフラグ
-# row_content = data[0]['text']['content']
-# elem_to_push = data[0]
-
-# if (not has_eos(row_content)):
-#     is_continuous = True
-#     actual_content = row_content
-# elif (has_eos(row_content)):
-#     is_continuous = False
-#     joined_data.append(elem_to_push)
-#     actual_content = ""
-
-# for row in data[1:]:
-#     row_content = row["text"]["content"]
-
-#     if (not is_continuous):
-#         elem_to_push = row
-#         actual_content += row_content
-
-#     if (not has_eos(row_content)):
-#         is_continuous = True
-#     elif (has_eos(row_content)):
-#         is_continuous = False
-#         elem_to_push["text"]["content"] = actual_content
-#         actual_content = ""
-#         joined_data.append(elem_to_push)
-
-data_len = len(data)
-idx = 0
-while (idx < data_len):
-    elem_to_push = data[idx]
-    appended_content = ""
-    while (True):
-        appended_content += data[idx]["text"]["content"]
-        if (has_eos(data[idx]["text"]["content"])):
-            break
-        idx += 1
-    elem_to_push["text"]["content"] = appended_content
-    joined_data.append(elem_to_push)
-    idx += 1
-
-
-    #((label 1)) #textに文末文字が含まれているか判定する
-        #文末文字がなければ
-            #文末文字が出てくるまでtextを連結する(次の行を解析する)
-        #文末文字が末尾で見つかったら
-            #前の文にすべての文を連結して終了する
-        #文末文字が途中で見つかったら
-            #最初の文末文字まで前の文に連結
-            #前の文のtext以外のデータを複製し、(label1に戻って)文末文字以降の文字列を解析する
-
+joined_data = join_continuous_sentence(data)
 print_data(joined_data)
