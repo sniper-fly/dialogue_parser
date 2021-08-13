@@ -6,14 +6,22 @@ def split_by_comma(line):
 
     line = line.rstrip()
     line = line.replace('\\N', '')
-    data = line.split(',', block_count)# 左端からblock_count回だけ分割する
-    data = dict(zip(formats, data))
+
+    # 左端からblock_count回だけ分割する
+    splitted_list = line.split(',', block_count)
+
+    #リストのままだとアクセスしづらいので、formats順に辞書にする
+    data = dict(zip(formats, splitted_list))
+
+    #textをposとcontentに分離し、辞書でまとめて保存
     data['text'] = data['text'].split('}')
     pos = data['text'][0]
     pos = pos.strip('{')
     content = data['text'][1]
-    data['text'] = {"pos": pos, "content": content} #posとcontentを分離して辞書に保存
+    data['text'] = {"pos": pos, "content": content}
+
     return data
+
 
 def has_eos(txt0):
     txt = list(txt0)
@@ -23,6 +31,7 @@ def has_eos(txt0):
     else:
         return False
 
+# ファイルから読み込んで連想配列を返却する関数
 # 戻り値のデータ構造
 # data[idx]['key']
 # key == text のとき, textのvalueは辞書{'pos', 'content'}
@@ -45,16 +54,19 @@ def has_eos(txt0):
 #         },
 # ]
 def parse_data_from_file(file_name):
+    data = []
     with open(file_name,"r",encoding="utf-8_sig") as f:
-        data = []
         for line in f.readlines():
+
             #先頭がDialogueでなければskip
             if (re.match(r'^Dialogue:', line) == None):
                 continue
 
-            #layer, start, end, textなど要素を分解して辞書にいれて返す
-            data.append(split_by_comma(line))
-        return data
+            row = split_by_comma(line)
+            if (row['style'] == 'Default'):
+                data.append(row)
+    return data
+
 
 file_name = "./2020_01_05_Sun_0900_0930_ch8_A_.ass"
 # file_name = "./result.txt"
@@ -63,6 +75,7 @@ data = parse_data_from_file(file_name)
 
 idx = 0
 for row in data:
+    print(f'{row}')
     
 
     idx += 1
