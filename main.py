@@ -8,6 +8,8 @@ def print_data(data):
 
 # file_name = "./data/another.ass"
 file_name = "./data/2020_01_05_Sun_0900_0930_ch8_A_.ass"
+
+
 data = parse_data_from_file(file_name)
 data = split_by_middle_eos(data)
 data = join_continuous_sentences(data)
