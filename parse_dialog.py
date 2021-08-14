@@ -71,11 +71,14 @@ def parse_data_from_file(file_name):
 
 def get_first_eos_idx(str):
     eos_chars = ["｡",    "?",    "!",    "！",    "？",    "》"]
-    min_idx = str.find(eos_chars[0])
+    INFINITY = 1000000000
+    min_idx = INFINITY
     for eos in eos_chars:
         idx = str.find(eos)
         if (idx != -1):
             min_idx = min(idx, min_idx)
+    if (min_idx == INFINITY):
+        return -1
     return min_idx
 
 
@@ -84,23 +87,23 @@ def split_by_middle_eos(raw_data):
     data_len = len(raw_data)
     idx = 0
     while (idx < data_len):
-        elem_to_push = raw_data[idx]
+        elem_to_push = raw_data[idx].copy()
         eos_idx = get_first_eos_idx(raw_data[idx]["text"][:-1])
         if (eos_idx != -1):
             former = raw_data[idx]["text"][:eos_idx + 1]
             latter = raw_data[idx]["text"][eos_idx + 1:]
             elem_to_push["text"] = former
-            data.append(elem_to_push)
+            data.append(elem_to_push.copy())
             while (True):
                 eos_idx = get_first_eos_idx(latter[:-1])
                 if (eos_idx != -1):
                     former = latter[:eos_idx + 1]
                     latter = latter[eos_idx + 1:]
                     elem_to_push["text"] = former
-                    data.append(elem_to_push)
+                    data.append(elem_to_push.copy())
                 else:
                     elem_to_push["text"] = latter
-                    data.append(elem_to_push)
+                    data.append(elem_to_push.copy())
                     break
         else:
             data.append(elem_to_push)
@@ -144,7 +147,7 @@ def join_continuous_sentence(data):
         #最初の文末文字まで前の文に連結
         #前の文のtext以外のデータを複製し、(label1に戻って)文末文字以降の文字列を解析する
 
-file_name = "./2020_01_05_Sun_0900_0930_ch8_A_.ass"
+file_name = "./another.ass"
 # file_name = "./result.txt"
 data = parse_data_from_file(file_name)
 data = split_by_middle_eos(data)
