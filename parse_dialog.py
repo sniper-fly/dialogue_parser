@@ -63,11 +63,17 @@ def parse_data_from_file(file_name):
             #先頭がDialogueでなければskip
             if (re.match(r'^Dialogue:', line) == None):
                 continue
-
             row = split_by_comma(line)
             if (row['style'] == 'Default'):
                 data.append(row)
     return data
+
+eos_pattern = re.compile(r".*?[。｡?!！？》]+")
+brackets_eos = re.compile(r"[)）]$")
+def get_eos_in_btwn_sentence(str):
+    pattern = eos_pattern.search(str)
+    return pattern
+
 
 def get_first_eos_idx(str):
     eos_chars = ["｡",    "?",    "!",    "！",    "？",    "》"]
@@ -81,6 +87,7 @@ def get_first_eos_idx(str):
         return -1
     return min_idx
 
+
 def split_until_middle_eos_exist(data, elem_to_push, latter):
     while (True):
         eos_idx = get_first_eos_idx(latter[:-1])
@@ -93,6 +100,7 @@ def split_until_middle_eos_exist(data, elem_to_push, latter):
             elem_to_push["text"] = latter
             data.append(elem_to_push.copy())
             break
+
 
 def split_by_middle_eos(raw_data):
     data = []
@@ -111,6 +119,7 @@ def split_by_middle_eos(raw_data):
             data.append(elem_to_push)
         idx += 1
     return data
+
 
 def join_continuous_sentence(data):
     joined_data = []
@@ -151,8 +160,21 @@ def join_continuous_sentence(data):
 
 file_name = "./another.ass"
 # file_name = "./result.txt"
-data = parse_data_from_file(file_name)
-data = split_by_middle_eos(data)
+# data = parse_data_from_file(file_name)
+# data = split_by_middle_eos(data)
 # joined_data = join_continuous_sentence(data)
-print_data(data)
 
+# print_data(data)
+
+examples = [
+    "アニキ！!ああ",
+    "こ。ん!!にちは!!",
+    "!?さようなら",
+    "さようなら",
+]
+
+for row in examples:
+    print(get_eos_in_btwn_sentence(row))
+
+# print(eos_pattern2.search("hello"))
+# print(eos_pattern2.search("hello a"))
