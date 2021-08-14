@@ -11,6 +11,7 @@ def split_by_comma(line):
 
     line = line.rstrip()
     line = line.replace('\\N', '')
+    line = line.replace('➡', '')
 
     # 左端からblock_count回だけ分割する
     splitted_list = line.split(',', block_count)
@@ -78,8 +79,33 @@ def get_first_eos_idx(str):
     return min_idx
 
 
-def split_by_middle_eos(data):
-    pass
+def split_by_middle_eos(raw_data):
+    data = []
+    data_len = len(raw_data)
+    idx = 0
+    while (idx < data_len):
+        elem_to_push = raw_data[idx]
+        eos_idx = get_first_eos_idx(raw_data[idx]["text"][:-1])
+        if (eos_idx != -1):
+            former = raw_data[idx]["text"][:eos_idx + 1]
+            latter = raw_data[idx]["text"][eos_idx + 1:]
+            elem_to_push["text"] = former
+            data.append(elem_to_push)
+            while (True):
+                eos_idx = get_first_eos_idx(latter[:-1])
+                if (eos_idx != -1):
+                    former = latter[:eos_idx + 1]
+                    latter = latter[eos_idx + 1:]
+                    elem_to_push["text"] = former
+                    data.append(elem_to_push)
+                else:
+                    elem_to_push["text"] = latter
+                    data.append(elem_to_push)
+                    break
+        else:
+            data.append(elem_to_push)
+        idx += 1
+    return data
 
 def join_continuous_sentence(data):
     joined_data = []
@@ -123,5 +149,5 @@ file_name = "./2020_01_05_Sun_0900_0930_ch8_A_.ass"
 data = parse_data_from_file(file_name)
 data = split_by_middle_eos(data)
 # joined_data = join_continuous_sentence(data)
-# print_data(joined_data)
+print_data(data)
 
