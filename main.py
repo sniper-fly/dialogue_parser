@@ -1,6 +1,6 @@
-from parse_data_from_file import parse_data_from_file
-from split_by_middle_eos import split_by_middle_eos
-from join_continuous_sentences import join_continuous_sentences
+from lib.parse_data_from_file import parse_data_from_file
+from lib.split_by_middle_eos import split_by_middle_eos
+from lib.join_continuous_sentences import join_continuous_sentences
 
 def print_data(data):
     for row in data:

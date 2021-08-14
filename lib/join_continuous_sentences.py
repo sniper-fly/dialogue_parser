@@ -1,4 +1,6 @@
-from my_regex import *
+import sys
+sys.path.append('../')
+from lib.my_regex import *
 
 def has_eos(text):
     if (eos_pattern.search(text)):

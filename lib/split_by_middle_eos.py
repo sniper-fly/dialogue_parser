@@ -1,4 +1,6 @@
-from my_regex import *
+import sys
+sys.path.append('../')
+from lib.my_regex import *
 
 def has_eos_in_btwn(eos_match, str):
     if (eos_match == None):
