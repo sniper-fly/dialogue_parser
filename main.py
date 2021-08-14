@@ -6,8 +6,8 @@ def print_data(data):
     for row in data:
         print(f'start: {row["start"]}, end: {row["end"]} content: {row["text"]}')
 
-# file_name = "./another.ass"
-file_name = "./2020_01_05_Sun_0900_0930_ch8_A_.ass"
+# file_name = "./data/another.ass"
+file_name = "./data/2020_01_05_Sun_0900_0930_ch8_A_.ass"
 data = parse_data_from_file(file_name)
 data = split_by_middle_eos(data)
 data = join_continuous_sentences(data)
