@@ -3,8 +3,10 @@ from lib.split_by_middle_eos import split_by_middle_eos
 from lib.join_continuous_sentences import join_continuous_sentences
 
 def print_data(data):
+    idx = 0
     for row in data:
-        print(f'start: {row["start"]}, end: {row["end"]} content: {row["text"]}')
+        print(f'{idx}    {row["start"]}    {row["end"]}    {row["style"]}    {row["pos"]}    {row["text"]}')
+        idx += 1
 
 # file_name = "./data/another.ass"
 file_name = "./data/2020_01_05_Sun_0900_0930_ch8_A_.ass"
