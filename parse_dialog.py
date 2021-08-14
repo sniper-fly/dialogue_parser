@@ -81,6 +81,18 @@ def get_first_eos_idx(str):
         return -1
     return min_idx
 
+def split_until_middle_eos_exist(data, elem_to_push, latter):
+    while (True):
+        eos_idx = get_first_eos_idx(latter[:-1])
+        if (eos_idx != -1):
+            former = latter[:eos_idx + 1]
+            latter = latter[eos_idx + 1:]
+            elem_to_push["text"] = former
+            data.append(elem_to_push.copy())
+        else:
+            elem_to_push["text"] = latter
+            data.append(elem_to_push.copy())
+            break
 
 def split_by_middle_eos(raw_data):
     data = []
@@ -94,17 +106,7 @@ def split_by_middle_eos(raw_data):
             latter = raw_data[idx]["text"][eos_idx + 1:]
             elem_to_push["text"] = former
             data.append(elem_to_push.copy())
-            while (True):
-                eos_idx = get_first_eos_idx(latter[:-1])
-                if (eos_idx != -1):
-                    former = latter[:eos_idx + 1]
-                    latter = latter[eos_idx + 1:]
-                    elem_to_push["text"] = former
-                    data.append(elem_to_push.copy())
-                else:
-                    elem_to_push["text"] = latter
-                    data.append(elem_to_push.copy())
-                    break
+            split_until_middle_eos_exist(data, elem_to_push, latter)
         else:
             data.append(elem_to_push)
         idx += 1
