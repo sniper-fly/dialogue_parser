@@ -29,7 +29,7 @@ def split_by_comma(line):
 
 def has_eos(txt0):
     txt = list(txt0)
-    if "｡" in txt or "?" in txt or "!" in txt or "！" in txt or "？" in txt or "《" in txt or "》" in txt:
+    if "｡" in txt or "?" in txt or "!" in txt or "！" in txt or "？" in txt or "》" in txt:
         return True 
     else:
         return False
@@ -68,6 +68,18 @@ def parse_data_from_file(file_name):
                 data.append(row)
     return data
 
+def get_first_eos_idx(str):
+    eos_chars = ["｡",    "?",    "!",    "！",    "？",    "》"]
+    min_idx = str.find(eos_chars[0])
+    for eos in eos_chars:
+        idx = str.find(eos)
+        if (idx != -1):
+            min_idx = min(idx, min_idx)
+    return min_idx
+
+
+def split_by_middle_eos(data):
+    pass
 
 def join_continuous_sentence(data):
     joined_data = []
@@ -78,7 +90,7 @@ def join_continuous_sentence(data):
         appended_content = ""
         while (True):
             appended_content += data[idx]["text"]
-            if (has_eos(data[idx]["text"])):
+            if (has_eos(data[idx]["text"][-1:])):
                 break
             idx += 1
         elem_to_push["text"] = appended_content
@@ -86,10 +98,20 @@ def join_continuous_sentence(data):
         idx += 1
     return joined_data
 
+                # if (has_eos_at_the_end(data[idx]["text"])):
+                #     break
+                # else:
+                #     #最初の文末文字まで前の文に連結
+                #     former = data[idx]["text"][111]
+                #     latter = data[idx]["text"][222]
+                #     appended_content += former
+                #     elem_to_push["text"] = appended_content
+                #     joined_data.append(elem_to_push)
+                #     continue
+                    
+                #     #前の文のtext以外のデータを複製し、(label1に戻って)文末文字以降の文字列を解析する
 
-#((label 1)) #textに文末文字が含まれているか判定する
-    #文末文字がなければ
-        #文末文字が出てくるまでtextを連結する(次の行を解析する)
+#textに文末文字があったら
     #文末文字が末尾で見つかったら
         #前の文にすべての文を連結して終了する
     #文末文字が途中で見つかったら
@@ -99,5 +121,7 @@ def join_continuous_sentence(data):
 file_name = "./2020_01_05_Sun_0900_0930_ch8_A_.ass"
 # file_name = "./result.txt"
 data = parse_data_from_file(file_name)
-joined_data = join_continuous_sentence(data)
-print_data(joined_data)
+data = split_by_middle_eos(data)
+# joined_data = join_continuous_sentence(data)
+# print_data(joined_data)
+
