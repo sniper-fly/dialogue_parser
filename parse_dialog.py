@@ -28,12 +28,15 @@ def split_by_comma(line):
     return data
 
 
-def has_eos(txt0):
-    txt = list(txt0)
-    if "｡" in txt or "?" in txt or "!" in txt or "！" in txt or "？" in txt or "》" in txt:
-        return True 
-    else:
-        return False
+# def has_eos(txt0):
+#     txt = list(txt0)
+#     if "｡" in txt or "?" in txt or "!" in txt or "！" in txt or "？" in txt or "》" in txt:
+#         return True 
+#     else:
+#         return False
+
+
+
 
 # ファイルから読み込んで連想配列を返却する関数
 # 戻り値のデータ構造
@@ -69,9 +72,6 @@ def parse_data_from_file(file_name):
 
 eos_pattern = re.compile(r".*?[。｡?!！？》]+")
 brackets_eos = re.compile(r"[)）]$")
-def get_eos_in_btwn_sentence(str):
-    pattern = eos_pattern.search(str)
-    return pattern
 
 def has_eos_in_btwn(eos_match, str):
     if (eos_match == None):
@@ -80,6 +80,14 @@ def has_eos_in_btwn(eos_match, str):
         return False
     else:
         return True
+
+def has_eos(text):
+    if (eos_pattern.search(text)):
+        return True
+    eos_match = brackets_eos.search(text)
+    if (eos_match != None and eos_match.end() == len(text)): #文末に閉じ括弧があったら
+        return True
+    return False
 
 # 中間に文末文字がある限り、再帰的に自身を呼び、dataに追加し続ける
 def split_as_long_as_middle_eos_exist(text, data, elem_to_push):
@@ -110,18 +118,18 @@ def join_continuous_sentence(data):
         appended_content = ""
         while (True):
             appended_content += data[idx]["text"]
-            if (has_eos(data[idx]["text"][-1:])):
+            if (has_eos(data[idx]["text"])):
                 break
             idx += 1
             if (idx >= data_len):
                 break
         elem_to_push["text"] = appended_content
-        joined_data.append(elem_to_push.copy())
+        joined_data.append(elem_to_push)
         idx += 1
     return joined_data
 
-file_name = "./another.ass"
-# file_name = "./2020_01_05_Sun_0900_0930_ch8_A_.ass"
+# file_name = "./another.ass"
+file_name = "./2020_01_05_Sun_0900_0930_ch8_A_.ass"
 data = parse_data_from_file(file_name)
 data = split_by_middle_eos(data)
 data = join_continuous_sentence(data)
